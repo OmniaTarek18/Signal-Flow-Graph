@@ -8,6 +8,20 @@
 // method -> Identify Non-touching Loops
 // method -> Calculate the Δ (Delta) for Each Set of Non-touching Loops
 // method -> Apply Mason's Gain Formula
-
+import Edge from "./Edge.js"
 export default class Graph {
+
+   constructor(){
+    this.graph = new Map();
+   }
+
+   addNode(node){
+    this.graph.set(node,[]);
+   }
+   addEdge(src,dest,gain){
+    const edge = new Edge(dest,gain);
+    this.graph.get(src).push(edge);
+   }
+
+
 }
