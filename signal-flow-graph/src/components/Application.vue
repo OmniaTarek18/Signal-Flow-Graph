@@ -47,7 +47,7 @@
 
 
 <script>
-
+import Konva from "konva";
 
 export default {
   data() {
