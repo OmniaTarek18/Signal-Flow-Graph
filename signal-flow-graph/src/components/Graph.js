@@ -10,7 +10,8 @@
 // method -> Apply Mason's Gain Formula
 import Edge from "./Edge.js"
 export default class Graph {
-
+   source;
+   sink;
    constructor(){
     this.graph = new Map();
    }

@@ -1,3 +1,6 @@
+<!-- we need to consider the first added node as the source node -->
+<!-- then any added node need to consider as the sink node until another one is added so it become the new sink node -->
+<!-- and before we start get the transfer function we need to set these values to the graph so it will be used there -->
 <template>
   <div id="app" class="container mt-4">
     <h1 class="mb-4 text-center">Singal Flow Graph</h1>
