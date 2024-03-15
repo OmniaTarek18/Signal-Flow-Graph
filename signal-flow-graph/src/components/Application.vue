@@ -42,7 +42,7 @@
           <i class="fas fa-play"></i> Solve
         </button>
       </div>
-      
+
     </div>
     <div id="simulation-container" class="border p-4 position-relative" style="background-color: #fff;"></div>
   </div>
@@ -73,7 +73,12 @@ export default {
     //   console.log(queue);
     //   this.stage.draw();
     // },
+    handleDrag(event, item) {
+      if (this.simulationRunning) {
+        event.cancelBubble = true;
 
+      }
+    },
     handleDrag(event, item) {
       if (this.simulationRunning) {
         event.cancelBubble = true;
@@ -181,32 +186,41 @@ export default {
 
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
-    
-  // Instantiate the Graph
-  const sfg = new Graph();
 
-  // Add nodes and edges
-  sfg.addNode(1);
-  sfg.addNode(2);
-  sfg.addNode(3);
-  sfg.addNode(4);
-  sfg.addEdge(1, 2, 3);
-  sfg.addEdge(2, 3, 4);
-  sfg.addEdge(3, 4, 1);
-  sfg.addEdge(4, 1, 6);
+    // Instantiate the Graph
+    const sfg = new Graph();
 
+    // Add nodes and edges
+    sfg.addNode(1);
+    sfg.addNode(2);
+    sfg.addNode(3);
+    sfg.addNode(4);
+    sfg.addEdge(1, 2, 5);
+    sfg.addEdge(1, 3, 5);
+    sfg.addEdge(1, 4, 5);
+    sfg.addEdge(2, 3, 5);
+    sfg.addEdge(3, 4, 5);
+    sfg.addEdge(2, 1, 5);
 
-  // Find loops
-  const loops = sfg.findLoops();
-  console.log("Loops:", loops);
+    // Find forward paths
+    const paths = sfg.findForwardPaths();
+    console.log("Paths:", paths);
 
-  // Calculate loop gains
-  const loopGains = sfg.calculateLoopsGain();
-  console.log("Loop Gains:", loopGains);
+    // Calculate gain of forward paths
+    const pathsGain = sfg.calculateForwardPathsGain();
+    console.log("Paths gain:",pathsGain);
 
-  // Find non-touching loops
-  const nonTouchingLoops = sfg.findNonTouchingLoops();
-  console.log("Non-touching Loops:", nonTouchingLoops);
+    // Find loops
+    const loops = sfg.findLoops();
+    console.log("Loops:", loops);
+
+    // Calculate loop gains
+    const loopGains = sfg.calculateLoopsGain();
+    console.log("Loop Gains:", loopGains);
+
+    // Find non-touching loops
+    const nonTouchingLoops = sfg.findNonTouchingLoops();
+    console.log("Non-touching Loops:", nonTouchingLoops);
   },
 };
 </script>
@@ -219,4 +233,3 @@ export default {
   position: relative;
 }
 </style>
-

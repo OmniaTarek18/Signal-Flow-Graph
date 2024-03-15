@@ -18,7 +18,9 @@ import Edge from "./Edge.js";
 export default class Graph {
   source;
   sink;
+  forwardPaths = [];
   forwardPathsGain = [];
+  loopsNotTouchedForwardPath = [];
   loops = [];
   nonTouchingLoops = [];
 
@@ -27,6 +29,8 @@ export default class Graph {
   }
 
   addNode(node) {
+    if (this.graph.size === 0) this.source = node;
+    this.sink = node;
     this.graph.set(node, []);
   }
 
@@ -35,81 +39,101 @@ export default class Graph {
     this.graph.get(src).push(edge);
   }
 
-  dfs(node, visitedNodes, gainOfEachNode) {
-    visitedNodes[node] = true;
-    for (let edge of this.graph.get(node)) {
-      gainOfEachNode[edge.dest] = node === this.source ? `${edge.gain}` : `${gainOfEachNode}${edge.gain}`;
-      if (!visitedNodes[edge.dest]) this.dfs(edge.dest);
-    }
-    if(node === this.sink) this.forwardPathsGain.push(gainOfEachNode[node]);
-    // backtracking
+  findForwardPaths() {
+    let visitedNodes = new Array(this.graph.size + 1).fill(false);
+    let path = [];
+    this.dfsforForwardPaths(this.source, visitedNodes, path);
+    return this.forwardPaths;
   }
 
-  findForwardPaths() {
-    let gainOfEachNode = new Array(this.graph.size + 1).fill(0);
-    let visitedNodes = new Array(this.graph.size + 1).fill(false);
-    this.dfs(this.source, gainOfEachNode, visitedNodes);
+  dfsforForwardPaths(node, visitedNodes, path) {
+    visitedNodes[node] = true;
+    path.push(node);
+    for (let edge of this.graph.get(node)) {
+      if (!visitedNodes[edge.dest]) {
+        this.dfsforForwardPaths(edge.dest, visitedNodes, path);
+      }
+    }
+    // backtracking add the path to forward paths if we reach sink node
+    if (node === this.sink) this.forwardPaths.push([...path]);
+
+    // pop the node from path and mark it unvisited to enable reach
+    path.pop();
+    visitedNodes[node] = false;
+  }
+
+  calculateForwardPathsGain() {
+    for (let path of this.forwardPaths) {
+      let gain = 1;
+      for (let i = 0; i < path.length - 1; i++) {
+        const src = path[i];
+        const dest = path[i + 1];
+        const edge = this.graph.get(src).find((ele) => ele.dest === dest);
+        gain *= edge.gain;
+      }
+      this.forwardPathsGain.push(gain);
+    }
+    return this.forwardPathsGain;
   }
   
   findLoops() {
     let visitedNodes = new Array(this.graph.size + 1).fill(false);
     for (let node of this.graph.keys()) {
       if (!visitedNodes[node]) {
-        this.dfsForLoops(node, visitedNodes, [], 1); 
+        this.dfsForLoops(node, visitedNodes, [], 1);
       }
     }
-    console.log(this.loops)
-    return this.loops; 
+    return this.loops;
   }
 
   dfsForLoops(node, visitedNodes, path) {
     visitedNodes[node] = true;
     path.push(node);
     for (let edge of this.graph.get(node) || []) {
-        if (!visitedNodes[edge.dest]) {
-            this.dfsForLoops(edge.dest, visitedNodes, path);
-        } else if (path.includes(edge.dest)) {
-            // Found a back edge, indicating a loop
-            let loop = [];
-            let index = path.indexOf(edge.dest);
-            while (index < path.length) {
-                loop.push(path[index]);
-                index++;
-            }
-            // including the starting node of the loop again
-            loop.push(path[path.indexOf(edge.dest)]);
-            this.loops.push(loop);
+      if (!visitedNodes[edge.dest]) {
+        this.dfsForLoops(edge.dest, visitedNodes, path);
+      } else if (path.includes(edge.dest)) {
+        // Found a back edge, indicating a loop
+        let loop = [];
+        let index = path.indexOf(edge.dest);
+        while (index < path.length) {
+          loop.push(path[index]);
+          index++;
         }
+        // including the starting node of the loop again
+        loop.push(path[path.indexOf(edge.dest)]);
+        this.loops.push(loop);
+      }
     }
     path.pop(); // backtracking after exploring all the neighbours of the node
-}
+  }
 
-calculateLoopsGain() {
+  calculateLoopsGain() {
     let gainOfLoops = [];
     for (let loop of this.loops) {
-        let gain = 1;
-        for (let i = 0; i < loop.length - 1; i++) { 
-            let node1 = loop[i];
-            let node2 = loop[i + 1]; 
-            // finding the edge between node1 and node2
-            let edge = this.graph.get(node1).find(edge => edge.dest === node2);
-            if (edge) {
-                gain *= edge.gain;
-            } else {
-                console.error(`Edge between nodes ${node1} and ${node2} not found.`);
-            }
+      let gain = 1;
+      for (let i = 0; i < loop.length - 1; i++) {
+        let node1 = loop[i];
+        let node2 = loop[i + 1];
+        // finding the edge between node1 and node2
+        let edge = this.graph.get(node1).find((edge) => edge.dest === node2);
+        if (edge) {
+          gain *= edge.gain;
+        } else {
+          console.error(`Edge between nodes ${node1} and ${node2} not found.`);
         }
-        gainOfLoops.push(gain);
+      }
+      gainOfLoops.push(gain);
     }
     return gainOfLoops;
-}
-
-
+  }
 
   findNonTouchingLoops() {
     for (let i = 0; i < this.loops.length; i++) {
       for (let j = i + 1; j < this.loops.length; j++) {
-        let commonNodes = this.loops[i].filter((node) => this.loops[j].includes(node));
+        let commonNodes = this.loops[i].filter((node) =>
+          this.loops[j].includes(node)
+        );
         if (commonNodes.length === 0) {
           this.nonTouchingLoops.push([this.loops[i], this.loops[j]]);
         }
