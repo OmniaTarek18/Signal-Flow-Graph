@@ -19,9 +19,6 @@ export default class Graph {
   source;
   sink;
   forwardPathsGain = [];
-  loops = [];
-  nonTouchingLoops = [];
-  gainOfLoops = [];
   constructor() {
     this.graph = new Map();
   }
