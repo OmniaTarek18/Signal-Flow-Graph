@@ -47,4 +47,71 @@ export default class Graph {
     let visitedNodes = new Array(this.graph.size + 1).fill(false);
     this.dfs(this.source, gainOfEachNode, visitedNodes);
   }
+
+  findLoops() {
+    let visitedNodes = new Array(this.graph.size + 1).fill(false);
+    for (let node of this.graph.keys()) {
+      if (!visitedNodes[node]) {
+        this.dfsForLoops(node, visitedNodes, [], 1); 
+      }
+    }
+    return this.loops; 
+  }
+
+  dfsForLoops(node, visitedNodes, path) {
+    visitedNodes[node] = true;
+    path.push(node);
+    for (let edge of this.graph.get(node) || []) {
+        if (!visitedNodes[edge.dest]) {
+            this.dfsForLoops(edge.dest, visitedNodes, path);
+        } else if (path.includes(edge.dest)) {
+            // Found a back edge, indicating a loop
+            let loop = [];
+            let loopGain = 1; 
+            let index = path.indexOf(edge.dest);
+            while (index < path.length) {
+                loop.push(path[index]);
+                index++;
+            }
+            // including the starting node of the loop again
+            loop.push(path[path.indexOf(edge.dest)]);
+            this.loops.push(loop);
+        }
+    }
+    path.pop(); // backtracking after exploring all the neighbours of the node
+}
+
+calculateLoopsGain() {
+    let gainOfLoops = [];
+    for (let loop of this.loops) {
+        let gain = 1;
+        for (let i = 0; i < loop.length - 1; i++) { 
+            let node1 = loop[i];
+            let node2 = loop[i + 1]; 
+            // finding the edge between node1 and node2
+            let edge = this.graph.get(node1).find(edge => edge.dest === node2);
+            if (edge) {
+                gain *= edge.gain;
+            } else {
+                console.error(`Edge between nodes ${node1} and ${node2} not found.`);
+            }
+        }
+        gainOfLoops.push(gain);
+    }
+    return gainOfLoops;
+}
+
+
+
+  findNonTouchingLoops() {
+    for (let i = 0; i < this.loops.length; i++) {
+      for (let j = i + 1; j < this.loops.length; j++) {
+        let commonNodes = this.loops[i].filter((node) => this.loops[j].includes(node));
+        if (commonNodes.length === 0) {
+          this.nonTouchingLoops.push([this.loops[i], this.loops[j]]);
+        }
+      }
+    }
+    return this.nonTouchingLoops;
+  }
 }
