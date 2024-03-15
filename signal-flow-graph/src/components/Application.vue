@@ -51,7 +51,7 @@
 
 <script>
 import Konva from "konva";
-
+import Graph from "./Graph";
 export default {
   data() {
     return {
@@ -181,6 +181,32 @@ export default {
 
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
+    
+  // Instantiate the Graph
+  const sfg = new Graph();
+
+  // Add nodes and edges
+  sfg.addNode(1);
+  sfg.addNode(2);
+  sfg.addNode(3);
+  sfg.addNode(4);
+  sfg.addEdge(1, 2, 3);
+  sfg.addEdge(2, 3, 4);
+  sfg.addEdge(3, 4, 1);
+  sfg.addEdge(4, 1, 6);
+
+
+  // Find loops
+  const loops = sfg.findLoops();
+  console.log("Loops:", loops);
+
+  // Calculate loop gains
+  const loopGains = sfg.calculateLoopsGain();
+  console.log("Loop Gains:", loopGains);
+
+  // Find non-touching loops
+  const nonTouchingLoops = sfg.findNonTouchingLoops();
+  console.log("Non-touching Loops:", nonTouchingLoops);
   },
 };
 </script>
