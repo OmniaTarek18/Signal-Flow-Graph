@@ -20,7 +20,8 @@ export default class Graph {
   sink;
   forwardPaths = [];
   forwardPathsGain = [];
-  loopsNotTouchedForwardPath = [];
+  loopsNotTouchingPath = [];
+  nonTouchingLoopsNotTouchingPath = [];
   loops = [];
   nonTouchingLoops = [];
 
@@ -75,7 +76,33 @@ export default class Graph {
     }
     return this.forwardPathsGain;
   }
-  
+  // NOTE: loops and non touched loops must be found first
+  // NOTE: not tested yet
+  findLoopsNotTouchingPath() {
+    for(let path of this.forwardPaths){
+      let allLoops=[]
+      for(let i=0; i< this.loops.length ; i++){
+        let commonNodes = path.filter((ele)=> this.loops.includes(ele));
+        if(commonNodes.length === 0)
+          allLoops.push(this.loops[i]);
+      }
+      this.nonTouchingLoopsNotTouchingPath.push(allLoops);
+    }
+    return this.loopsNotTouchingPath;
+  }
+  findNonTouchingLoopsNotTouchingPath() {
+    for(let path of this.forwardPaths){
+      let allLoops=[]
+      for(let i=0; i< this.nonTouchingLoops.length ; i++){
+        let commonNodes = path.filter((ele)=> this.nonTouchingLoops.includes(ele));
+        if(commonNodes.length === 0)
+          allLoops.push(this.loops[i]);
+      }
+      this.nonTouchingLoopsNotTouchingPath.push(allLoops);
+    }
+    return this.nonTouchingLoopsNotTouchingPath;
+  }
+  // //
   findLoops() {
     let visitedNodes = new Array(this.graph.size + 1).fill(false);
     for (let node of this.graph.keys()) {
