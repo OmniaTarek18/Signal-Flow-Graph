@@ -21,7 +21,9 @@ export default class Graph {
   forwardPaths = [];
   forwardPathsGain = [];
   loopsNotTouchingPath = [];
+  gainOfLoopsNotTouchingPath = [];
   nonTouchingLoopsNotTouchingPath = [];
+  gainOfNonTouchingLoopsNotTouchingPath = [];
   loops = [];
   nonTouchingLoops = [];
 
@@ -63,45 +65,33 @@ export default class Graph {
     visitedNodes[node] = false;
   }
 
-  calculateForwardPathsGain() {
-    for (let path of this.forwardPaths) {
-      let gain = 1;
-      for (let i = 0; i < path.length - 1; i++) {
-        const src = path[i];
-        const dest = path[i + 1];
-        const edge = this.graph.get(src).find((ele) => ele.dest === dest);
-        gain *= edge.gain;
-      }
-      this.forwardPathsGain.push(gain);
-    }
-    return this.forwardPathsGain;
-  }
   // NOTE: loops and non touched loops must be found first
   // NOTE: not tested yet
   findLoopsNotTouchingPath() {
-    for(let path of this.forwardPaths){
-      let allLoops=[]
-      for(let i=0; i< this.loops.length ; i++){
-        let commonNodes = path.filter((ele)=> this.loops.includes(ele));
-        if(commonNodes.length === 0)
-          allLoops.push(this.loops[i]);
+    for (let path of this.forwardPaths) {
+      let allLoops = [];
+      for (let i = 0; i < this.loops.length; i++) {
+        let commonNodes = path.filter((ele) => this.loops.includes(ele));
+        if (commonNodes.length === 0) allLoops.push(this.loops[i]);
       }
       this.nonTouchingLoopsNotTouchingPath.push(allLoops);
     }
     return this.loopsNotTouchingPath;
   }
   findNonTouchingLoopsNotTouchingPath() {
-    for(let path of this.forwardPaths){
-      let allLoops=[]
-      for(let i=0; i< this.nonTouchingLoops.length ; i++){
-        let commonNodes = path.filter((ele)=> this.nonTouchingLoops.includes(ele));
-        if(commonNodes.length === 0)
-          allLoops.push(this.loops[i]);
+    for (let path of this.forwardPaths) {
+      let allLoops = [];
+      for (let i = 0; i < this.nonTouchingLoops.length; i++) {
+        let commonNodes = path.filter((ele) =>
+          this.nonTouchingLoops.includes(ele)
+        );
+        if (commonNodes.length === 0) allLoops.push(this.loops[i]);
       }
       this.nonTouchingLoopsNotTouchingPath.push(allLoops);
     }
     return this.nonTouchingLoopsNotTouchingPath;
   }
+
   // //
   findLoops() {
     let visitedNodes = new Array(this.graph.size + 1).fill(false);
@@ -135,24 +125,25 @@ export default class Graph {
     path.pop(); // backtracking after exploring all the neighbours of the node
   }
 
-  calculateLoopsGain() {
-    let gainOfLoops = [];
-    for (let loop of this.loops) {
+  calculateGain(array) {
+    let gainOfArray = [];
+    // array is array of loops or paths
+    for (let ele of array) {
       let gain = 1;
-      for (let i = 0; i < loop.length - 1; i++) {
-        let node1 = loop[i];
-        let node2 = loop[i + 1];
+      for (let i = 0; i < ele.length - 1; i++) {
+        const node1 = ele[i];
+        const node2 = ele[i + 1];
         // finding the edge between node1 and node2
-        let edge = this.graph.get(node1).find((edge) => edge.dest === node2);
+        const edge = this.graph.get(node1).find((edge) => edge.dest === node2);
         if (edge) {
           gain *= edge.gain;
         } else {
           console.error(`Edge between nodes ${node1} and ${node2} not found.`);
         }
       }
-      gainOfLoops.push(gain);
+      gainOfArray.push(gain);
     }
-    return gainOfLoops;
+    return gainOfArray;
   }
 
   findNonTouchingLoops() {

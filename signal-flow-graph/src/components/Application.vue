@@ -207,7 +207,7 @@ export default {
     console.log("Paths:", paths);
 
     // Calculate gain of forward paths
-    const pathsGain = sfg.calculateForwardPathsGain();
+    const pathsGain = sfg.calculateGain(sfg.forwardPaths);
     console.log("Paths gain:",pathsGain);
 
     // Find loops
@@ -215,7 +215,7 @@ export default {
     console.log("Loops:", loops);
 
     // Calculate loop gains
-    const loopGains = sfg.calculateLoopsGain();
+    const loopGains = sfg.calculateGain(sfg.loops);
     console.log("Loop Gains:", loopGains);
 
     // Find non-touching loops
