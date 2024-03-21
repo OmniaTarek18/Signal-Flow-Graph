@@ -38,10 +38,13 @@
       </div>
 
       <div class="p-2">
-        <button class="btn btn-warning me-2" @click="" :disabled="simulationRunning">
+        <button class="btn btn-warning me-2" @click="showResultModal" :disabled="simulationRunning">
           <i class="fas fa-play"></i> Solve
         </button>
       </div>
+
+      <!-- result component -->
+      <ResultModal :show="showModal" @close="closeResultModal" :result="results" />
 
     </div>
     <div id="simulation-container" class="border p-4 position-relative" style="background-color: #fff;"></div>
@@ -51,14 +54,20 @@
 
 <script>
 import Konva from "konva";
+import ResultModal from "@/components/ResultModal.vue";
 import Graph from "./Graph";
 export default {
+  components: {
+    ResultModal,
+  },
   data() {
     return {
       nodes: [],
       connections: [],
       stage: null,
       layer: null,
+      showModal: false, // flag to control modal visibility
+      results: null, // data that will be displayed in the modal
       dragBoundFunc: (pos) => ({ x: pos.x, y: pos.y }),
 
     };
@@ -73,6 +82,48 @@ export default {
     //   console.log(queue);
     //   this.stage.draw();
     // },
+    // Method to show the modal
+    showResultModal() {
+      const sfg = new Graph();
+      // Add nodes and edges
+      sfg.addNode(1);
+      sfg.addNode(2);
+      sfg.addNode(3);
+      sfg.addNode(4);
+      sfg.addNode(6);
+      sfg.addNode(5);
+      sfg.addEdge(1, 2, 1);
+      sfg.addEdge(2, 3, 5);
+      sfg.addEdge(3, 4, 10);
+      sfg.addEdge(4, 5, 2);
+      sfg.addEdge(5, 2, -1);
+      sfg.addEdge(5, 4, -2);
+      sfg.addEdge(4, 3, -1);
+      sfg.addEdge(2, 6, 10);
+      sfg.addEdge(6, 5, 2);
+      sfg.addEdge(6, 6, -1);
+
+
+      const traversalArrays = sfg.setTraversalArrays();
+      const gainArrays = sfg.setGainArrays();
+      const totalGain = sfg.totalGain();
+
+      // Combining the results into a single object
+      // Update results
+      this.results = {
+        traversalArrays: traversalArrays,
+        totalGain: totalGain,
+        gainArrays: gainArrays
+      };
+      this.showModal = true;
+    },
+
+    //method to close the modal
+    closeResultModal() {
+      // reset model on closing
+      this.showModal = false;
+      this.results = null;
+    },
     handleDrag(event, item) {
       if (this.simulationRunning) {
         event.cancelBubble = true;
@@ -187,29 +238,7 @@ export default {
     this.layer = new Konva.Layer();
     this.stage.add(this.layer);
 
-    // Instantiate the Graph
-    const sfg = new Graph();
 
-    // Add nodes and edges
-    sfg.addNode(1);
-    sfg.addNode(2);
-    sfg.addNode(3);
-    sfg.addNode(4);
-    sfg.addEdge(1, 2, 5);
-    sfg.addEdge(1, 3, 5);
-    sfg.addEdge(1, 4, 5);
-    sfg.addEdge(2, 3, 5);
-    sfg.addEdge(3, 4, 5);
-    sfg.addEdge(2, 1, 5);
-    sfg.addEdge(4, 3, 5);
-    sfg.addEdge(3, 2, 5);
-    sfg.addEdge(3, 1, 5);
-    sfg.addEdge(4, 1, 5);
-
-
-    sfg.setTraversalArrays();
-    sfg.setGainArrays();
-    console.log("Total gain: ", sfg.totalGain());
   },
 };
 </script>

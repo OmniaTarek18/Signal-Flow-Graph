@@ -1,17 +1,19 @@
 <template>
   <Application />
   <CheckStability />
+  <ResultModal/>
 </template>
 
 <script>
 import Application from './components/Application.vue'
 import CheckStability from './components/CheckStability.vue'
-
+import ResultModal from './components/ResultModal.vue'
 export default {
   name: 'App',
   components: {
     Application,
-    CheckStability
+    CheckStability,
+    ResultModal
   }
 }
 </script>
