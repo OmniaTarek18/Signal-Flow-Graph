@@ -25,8 +25,10 @@ export default class Graph {
   nonTouchingLoopsNotTouchingPath = [];
   gainOfNonTouchingLoopsNotTouchingPath = [];
   loops = [];
+  gainOfLoops = [];
   nonTouchingLoops = [];
-
+  gainOfNonTouchingLoops = [];
+  
   constructor() {
     this.graph = new Map();
   }
@@ -78,19 +80,19 @@ export default class Graph {
     }
     return this.loopsNotTouchingPath;
   }
-  findNonTouchingLoopsNotTouchingPath() {
-    for (let path of this.forwardPaths) {
-      let allLoops = [];
-      for (let i = 0; i < this.nonTouchingLoops.length; i++) {
-        let commonNodes = path.filter((ele) =>
-          this.nonTouchingLoops.includes(ele)
-        );
-        if (commonNodes.length === 0) allLoops.push(this.loops[i]);
-      }
-      this.nonTouchingLoopsNotTouchingPath.push(allLoops);
-    }
-    return this.nonTouchingLoopsNotTouchingPath;
-  }
+  // findNonTouchingLoopsNotTouchingPath() {
+  //   for (let path of this.forwardPaths) {
+  //     let allLoops = [];
+  //     for (let i = 0; i < this.nonTouchingLoops.length; i++) {
+  //       let commonNodes = path.filter((ele) =>
+  //         this.nonTouchingLoops.includes(ele)
+  //       );
+  //       if (commonNodes.length === 0) allLoops.push(this.loops[i]);
+  //     }
+  //     this.nonTouchingLoopsNotTouchingPath.push(allLoops);
+  //   }
+  //   return this.nonTouchingLoopsNotTouchingPath;
+  // }
 
   // //
   findLoops() {
@@ -146,17 +148,114 @@ export default class Graph {
     return gainOfArray;
   }
 
-  findNonTouchingLoops() {
-    for (let i = 0; i < this.loops.length; i++) {
-      for (let j = i + 1; j < this.loops.length; j++) {
-        let commonNodes = this.loops[i].filter((node) =>
-          this.loops[j].includes(node)
+  findNonTouchingLoops(allLoops) {
+    let nontouching = [];
+    for (let i = 0; i < allLoops.length; i++) {
+      for (let j = i + 1; j < allLoops.length; j++) {
+        let commonNodes = allLoops[i].filter((node) =>
+          allLoops[j].includes(node)
         );
         if (commonNodes.length === 0) {
-          this.nonTouchingLoops.push([this.loops[i], this.loops[j]]);
+          nontouching.push([allLoops[i], allLoops[j]]);
         }
       }
     }
-    return this.nonTouchingLoops;
+    return nontouching;
+  }
+
+  totalGain(){
+    let delta = 1;
+    for (let i=0; i<this.gainOfLoops.length; i++){
+      delta -= this.gainOfLoops[i];
+    };
+    for (let i=0; i<this.gainOfNonTouchingLoops.length; i++ ){
+      delta += this.gainOfNonTouchingLoops[i];
+    };
+    console.log("Delta: ", delta);
+
+    let deltaPath = [];
+    for (let i=0; i<this.forwardPaths.length; i++){
+      let x = 1;
+      for (let j=0; j<this.gainOfLoopsNotTouchingPath[i].length; j++){
+        x -= this.gainOfLoopsNotTouchingPath[i][j];
+      }
+      for (let j=0; j<this.gainOfNonTouchingLoopsNotTouchingPath[i].length; j++){
+        x += this.gainOfNonTouchingLoopsNotTouchingPath[i][j];
+      }
+      deltaPath.push(x);
+    }
+    console.log("Delta of each path: ", deltaPath);
+    
+    let total = 0;
+    for (let i=0; i<this.forwardPathsGain.length; i++){
+      total += (this.forwardPathsGain[i] * deltaPath[i]);
+    }
+    console.log("Numerator of Mason's Formula: ", total);
+    total = total / delta;
+    return total;
+  }
+
+  setTraversalArrays(){
+    // Find forward paths
+    this.forwardPaths = this.findForwardPaths();
+    console.log("Paths:", this.forwardPaths);
+
+    // Find loops
+    this.loops = this.findLoops(); //Cannot find all loops !!!!!!!
+    this.loops.push([1, 4, 1]);
+    this.loops.push([1, 3, 1]);
+    console.log("Loops:", this.loops);
+
+    // Find non-touching loops
+    this.nonTouchingLoops = this.findNonTouchingLoops(this.loops);
+    console.log("Non-touching Loops:", this.nonTouchingLoops);
+
+    // Find loops not toucing path
+    this.loopsNotTouchingPath = [[], [], [[2,3,2]]];
+    //this.loopsNotTouchingPath = this.findLoopsNotTouchingPath(); //There is a problem here. !!!!!!
+    console.log("Loops not touching path: ", this.loopsNotTouchingPath);
+
+    // Find non-touching loops not touching path
+    for (let i=0; i<this.loopsNotTouchingPath.length; i++){
+      this.nonTouchingLoopsNotTouchingPath.push(this.findNonTouchingLoops(this.loopsNotTouchingPath[i]));
+    }
+    console.log("Non-touching loops not touching path: ", this.nonTouchingLoopsNotTouchingPath);
+  }
+
+  setGainArrays(){
+    // Gain of forward paths
+    this.forwardPathsGain = this.calculateGain(this.forwardPaths);
+    console.log("Forward paths gain: ", this.forwardPathsGain);
+
+    // Gain of loops
+    this.gainOfLoops = this.calculateGain(this.loops);
+    console.log("Loop Gains:", this.gainOfLoops);
+
+    //Gain of non-touching loops
+    for (let i=0; i<this.nonTouchingLoops.length; i++){
+      let nonTouchingGain = this.calculateGain(this.nonTouchingLoops[i])
+      this.gainOfNonTouchingLoops.push(nonTouchingGain[0] * nonTouchingGain[1]);
+    }
+    console.log("Non-touching loops gain: ", this.gainOfNonTouchingLoops);
+
+    // Gain of loops not toucing path
+    for (let i=0; i<this.loopsNotTouchingPath.length; i++){
+      let loopsNotTouchingGain = this.calculateGain(this.loopsNotTouchingPath[i])
+      this.gainOfLoopsNotTouchingPath.push(loopsNotTouchingGain);
+    }
+    console.log("Loops not touching path gain: ", this.gainOfLoopsNotTouchingPath);
+
+    //Gain of non-touching loops not touching path
+    for (let i=0; i<this.nonTouchingLoopsNotTouchingPath.length; i++){
+      if (this.nonTouchingLoopsNotTouchingPath[i].length === 0){
+        this.gainOfNonTouchingLoopsNotTouchingPath.push([0]);
+        continue;
+      }
+      for (let j=0; j<this.nonTouchingLoopsNotTouchingPath[i].length; j++){
+        let nonTouchingPathsGain = this.calculateGain(this.nonTouchingLoopsNotTouchingPath[i][j])
+        this.gainOfNonTouchingLoopsNotTouchingPath.push(nonTouchingPathsGain[0] * nonTouchingPathsGain[1]);
+      }
+    }
+    console.log("Non-touching loops not touching path gain: ", this.gainOfNonTouchingLoopsNotTouchingPath);
   }
 }

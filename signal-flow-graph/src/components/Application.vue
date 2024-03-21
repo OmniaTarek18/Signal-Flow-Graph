@@ -201,26 +201,15 @@ export default {
     sfg.addEdge(2, 3, 5);
     sfg.addEdge(3, 4, 5);
     sfg.addEdge(2, 1, 5);
+    sfg.addEdge(4, 3, 5);
+    sfg.addEdge(3, 2, 5);
+    sfg.addEdge(3, 1, 5);
+    sfg.addEdge(4, 1, 5);
 
-    // Find forward paths
-    const paths = sfg.findForwardPaths();
-    console.log("Paths:", paths);
 
-    // Calculate gain of forward paths
-    const pathsGain = sfg.calculateGain(sfg.forwardPaths);
-    console.log("Paths gain:",pathsGain);
-
-    // Find loops
-    const loops = sfg.findLoops();
-    console.log("Loops:", loops);
-
-    // Calculate loop gains
-    const loopGains = sfg.calculateGain(sfg.loops);
-    console.log("Loop Gains:", loopGains);
-
-    // Find non-touching loops
-    const nonTouchingLoops = sfg.findNonTouchingLoops();
-    console.log("Non-touching Loops:", nonTouchingLoops);
+    sfg.setTraversalArrays();
+    sfg.setGainArrays();
+    console.log("Total gain: ", sfg.totalGain());
   },
 };
 </script>
