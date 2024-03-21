@@ -10,8 +10,10 @@
                 <!-- dispalying the results -->
                 <div v-if="result" class="result-container">
                     <p class="result-info" style="text-align: left;">
-                        <span class="highlight">Total Gain:</span> {{ result.totalGain }}
+                        <span class="highlight">Total Gain:</span> <span style="color: black;">{{ result.totalGain
+                            }}</span>
                     </p>
+
                     <div class="result-section" v-if="result.traversalArrays">
                         <hr>
                         <h3 class="subtitle section-title"><span class="highlight">Forward Paths</span></h3>
@@ -24,7 +26,8 @@
                         <hr>
                         <h3 class="subtitle section-title"><span class="highlight">Loops</span></h3>
                         <ul class="result-list">
-                            <li v-for="(loop, index) in result.traversalArrays.loops" :key="index">L{{ index + 1 }}: {{loop }}</li>
+                            <li v-for="(loop, index) in result.traversalArrays.loops" :key="index">L{{ index + 1 }}:
+                                {{loop }}</li>
                         </ul>
                     </div>
                     <div class="result-section" v-if="result.traversalArrays">
@@ -207,5 +210,11 @@ export default {
 
 .result-section {
     text-align: left;
+}
+hr {
+  color: black; /* Change this to the desired color */
+}
+.result-list li {
+  color: black;
 }
 </style>
