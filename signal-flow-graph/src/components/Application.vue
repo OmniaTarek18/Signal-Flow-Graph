@@ -105,6 +105,7 @@ export default {
       // find if there is connection already 
       if (this.connections && this.connections.find(ele => ele.src === this.selectedSrc && ele.dest === this.selectedDest))
         return;
+      this.sfg.addEdge(this.selectedSrc,this.selectedDest,this.gain);
       console.log("done");
       const start= this.nodes[this.selectedSrc - 1].group;
       const end= this.nodes[this.selectedDest - 1].group;
