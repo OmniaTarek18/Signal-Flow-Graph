@@ -67,34 +67,29 @@ export default class Graph {
     visitedNodes[node] = false;
   }
 
-  // NOTE: loops and non touched loops must be found first
-  // NOTE: not tested yet
+  includesAny(array, values) {
+    for (let value of values) {
+        if (array.includes(value)) {
+            return true;
+        }
+    }
+    return false;
+  }
+
   findLoopsNotTouchingPath() {
     for (let path of this.forwardPaths) {
       let allLoops = [];
       for (let i = 0; i < this.loops.length; i++) {
-        let commonNodes = path.filter((ele) => this.loops.includes(ele));
-        if (commonNodes.length === 0) allLoops.push(this.loops[i]);
+        if (this.includesAny(path, this.loops[i])){
+          continue;
+        }
+        allLoops.push(this.loops[i]);
       }
-      this.nonTouchingLoopsNotTouchingPath.push(allLoops);
+      this.loopsNotTouchingPath.push(allLoops);
     }
     return this.loopsNotTouchingPath;
   }
-  // findNonTouchingLoopsNotTouchingPath() {
-  //   for (let path of this.forwardPaths) {
-  //     let allLoops = [];
-  //     for (let i = 0; i < this.nonTouchingLoops.length; i++) {
-  //       let commonNodes = path.filter((ele) =>
-  //         this.nonTouchingLoops.includes(ele)
-  //       );
-  //       if (commonNodes.length === 0) allLoops.push(this.loops[i]);
-  //     }
-  //     this.nonTouchingLoopsNotTouchingPath.push(allLoops);
-  //   }
-  //   return this.nonTouchingLoopsNotTouchingPath;
-  // }
 
-  // //
   findLoops() {
     let visitedNodes = new Array(this.graph.size + 1).fill(false);
     for (let node of this.graph.keys()) {
@@ -211,8 +206,7 @@ export default class Graph {
     console.log("Non-touching Loops:", this.nonTouchingLoops);
 
     // Find loops not toucing path
-    this.loopsNotTouchingPath = [[], [], [[2,3,2]]];
-    //this.loopsNotTouchingPath = this.findLoopsNotTouchingPath(); //There is a problem here. !!!!!!
+    this.loopsNotTouchingPath = this.findLoopsNotTouchingPath();
     console.log("Loops not touching path: ", this.loopsNotTouchingPath);
 
     // Find non-touching loops not touching path
