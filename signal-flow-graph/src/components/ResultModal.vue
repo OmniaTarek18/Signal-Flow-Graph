@@ -27,7 +27,7 @@
                         <h3 class="subtitle section-title"><span class="highlight">Loops</span></h3>
                         <ul class="result-list">
                             <li v-for="(loop, index) in result.traversalArrays.loops" :key="index">L{{ index + 1 }}:
-                                {{loop }}</li>
+                                {{ loop }}</li>
                         </ul>
                     </div>
                     <div class="result-section" v-if="result.traversalArrays">
@@ -211,10 +211,13 @@ export default {
 .result-section {
     text-align: left;
 }
+
 hr {
-  color: black; /* Change this to the desired color */
+    color: black;
+    /* Change this to the desired color */
 }
+
 .result-list li {
-  color: black;
+    color: black;
 }
 </style>

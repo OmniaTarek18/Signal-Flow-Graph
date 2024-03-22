@@ -65,10 +65,10 @@ export default {
     return {
       id: 0,
       nodes: [],
+      resize: false,
       selectedSrc: null,
       selectedDest: null,
       gain: null,
-      direc: true,
       connections: [],
       stage: null,
       layer: null,
@@ -103,88 +103,185 @@ export default {
       var anchor = new Konva.Circle({
         x: x,
         y: y,
+        radius: 8,
         strokeWidth: 2,
         draggable: true,
       });
       this.layer.add(anchor);
+
+      anchor.on("dragmove", function () {
+        document.body.style.cursor = "n-resize";
+      })
+
       return anchor;
     },
-    connectNodes() {
-      // connect two objects
-      if (!this.selectedSrc || !this.selectedDest)
-        return;
-      // find if there is connection already 
-      if (this.connections && this.connections.find(ele => ele.src === this.selectedSrc && ele.dest === this.selectedDest))
-        return;
-      this.sfg.addEdge(this.selectedSrc, this.selectedDest, this.gain);
-      console.log("done");
-      const start = this.nodes[this.selectedSrc - 1].group;
-      const end = this.nodes[this.selectedDest - 1].group;
-      if (this.selectedDest - this.selectedSrc === 1) {
-        const arrow = new Konva.Shape({
-          stroke: "black",
-          opacity: 0.8,
-          strokeWidth: 4,
-          sceneFunc: (ctx, shape) => {
-            ctx.beginPath();
-            ctx.moveTo(start.getClientRect().x, start.getClientRect().y + start.getClientRect().height / 2);
-            ctx.lineTo(end.getClientRect().x + end.getClientRect().width, end.getClientRect().y + end.getClientRect().height / 2);
-            ctx.fillStrokeShape(shape);
-          },
-        });
-        this.layer.add(arrow);
-        return;
+    checkParameters() {
+      if (!this.selectedSrc) {
+        alert("Please,Enter the source");
+        return false;
       }
-      const controlX = (start.x() + end.x()) / 2;
-      const controlY = (start.y() + end.y()) / 2;
+      else if (!this.selectedDest) {
+        alert("Please,Enter the destination");
+        return false;
+      }
+      else if (!this.gain) {
+        alert("Please,Enter the gain");
+        return false;
+      }
+      return true;
+    },
+    // addText() {
+    //   var text = new Konva.Text({
+    //     x: 100, // Example x position
+    //     y: 100, // Example y position
+    //     text: `${this.gain}`, // The text you want to display
+    //     fontSize: 16,
+    //     fill: 'black',
+    //     width: 25 * 2,
+    //     height: 25 * 2,
 
-
+    //   });
+    //   return text;
+    // },
+    addConnection() {
+      this.connections.push({
+        src: this.selectedSrc,
+        dest: this.selectedDest,
+      });
+    },
+    isConnectionExist() {
+      return this.connections.find(ele => ele.src === this.selectedSrc && ele.dest === this.selectedDest);
+    },
+    addStraightLine(start, end) {
       const arrow = new Konva.Shape({
         stroke: "black",
-        opacity: 0.8,
-        strokeWidth: 4,
+        opacity: 0.7,
+        strokeWidth: 3,
+        id: `${this.selectedSrc}${this.selectedDest}`,
         sceneFunc: (ctx, shape) => {
           ctx.beginPath();
-          ctx.moveTo(start.getClientRect().x, start.getClientRect().y + start.getClientRect().height / 2);
-          ctx.quadraticCurveTo(
-            controlX,
-            controlY,
-            end.getClientRect().x + end.getClientRect().width,
-            end.getClientRect().y + end.getClientRect().height / 2
-          );
+          ctx.moveTo(start.getClientRect().x + 50, start.getClientRect().y + 25);
+          ctx.lineTo(end.getClientRect().x, end.getClientRect().y + 25);
+          // Arrowhead
+          ctx.moveTo(end.getClientRect().x - 10, end.getClientRect().y + 25 - 5);
+          ctx.lineTo(end.getClientRect().x, end.getClientRect().y + 25);
+          ctx.lineTo(end.getClientRect().x - 10, end.getClientRect().y + 25 + 5);
           ctx.fillStrokeShape(shape);
         },
       });
+      return arrow;
+    },
+    addCurvedLine(start, end, control, direc) {
+      const arrowSize = 10;
+      const arrowAngle = Math.PI / 6;
+      const arrow = new Konva.Arrow({
+        stroke: "black",
+        opacity: 0.7,
+        strokeWidth: 3,
+        id: `${this.selectedSrc}${this.selectedDest}`,
+        sceneFunc: (ctx, shape) => {
+          ctx.beginPath();
+          ctx.moveTo(start.getClientRect().x + direc, start.getClientRect().y + 25);
+          ctx.quadraticCurveTo(
+            control.x(),
+            control.y(),
+            end.getClientRect().x + 50 - direc,
+            end.getClientRect().y + 25
+          );
+          // Calculate arrowhead points
+          const angle = Math.atan2(end.getClientRect().y - control.y(), end.getClientRect().x - direc - control.x());
+          const x1 = end.getClientRect().x - direc + 50 - arrowSize * Math.cos(angle - arrowAngle);
+          const y1 = end.getClientRect().y + 25 - arrowSize * Math.sin(angle - arrowAngle);
+          const x2 = end.getClientRect().x - direc + 50 - arrowSize * Math.cos(angle + arrowAngle);
+          const y2 = end.getClientRect().y + 25 - arrowSize * Math.sin(angle + arrowAngle);
 
+          // Draw arrowhead
+          ctx.moveTo(end.getClientRect().x + 50 - direc, end.getClientRect().y + 25);
+          ctx.lineTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.closePath();
+          ctx.fillStrokeShape(shape);
+        },
+      });
+      return arrow;
+    },
+    connectNodes() {
+      // check for missing parameters
+      if (!this.checkParameters()) 
+        return;
+      
+      // find if there is connection already 
+      if (this.connections && this.isConnectionExist())
+        return;
+
+      // push the new connection to prevent make the same connection later
+      this.addConnection();
+
+      // add the edge to the graph
+      this.sfg.addEdge(this.selectedSrc, this.selectedDest, this.gain);
+
+      const group = new Konva.Group();
+      const start = this.nodes[this.selectedSrc - 1].group;
+      const end = this.nodes[this.selectedDest - 1].group;
+      // var text = this.addText();
+
+      if ((this.selectedDest - this.selectedSrc) === 1) {
+        const arrow = this.addStraightLine(start, end);
+        group.add(arrow)
+        this.layer.add(group);
+        this.stage.draw();
+        return;
+      }
+      // else
+      // to move the line outside the nodes
+      const lineDirc = (this.selectedDest > this.selectedSrc) ? 50 : 0;
+      // to change the direction of the curve 
+      const dirc = (this.selectedDest - this.selectedSrc > 0) ? 0.25 : 3;
+      const pos = {
+        x: (start.getClientRect().x + end.getClientRect().x) / 2,
+        y: dirc * (start.getClientRect().y + end.getClientRect().y) / 2
+      }
+      const control = this.buildAnchor(pos.x, pos.y);
+      const arrow = this.addCurvedLine(start, end, control, lineDirc);
       this.layer.add(arrow);
+
+      // events to be able to resize any curved lines
+      arrow.on("click", function () {
+        document.body.style.cursor = "pointer";
+        control.fill('grey');
+      });
+      this.stage.on("dblclick", function () {
+        control.fill('white');
+        document.body.style.cursor = "default";
+      });
     },
 
     // Method to show the modal
     showResultModal() {
       // will be removed later 
-      const test = new Graph();
+      // const test = new Graph();
       // Add nodes and edges
-      test.addNode(1);
-      test.addNode(2);
-      test.addNode(3);
-      test.addNode(4);
-      test.addNode(6);
-      test.addNode(5);
-      test.addEdge(1, 2, 1);
-      test.addEdge(2, 3, 5);
-      test.addEdge(3, 4, 10);
-      test.addEdge(4, 5, 2);
-      test.addEdge(5, 2, -1);
-      test.addEdge(5, 4, -2);
-      test.addEdge(4, 3, -1);
-      test.addEdge(2, 6, 10);
-      test.addEdge(6, 5, 2);
-      test.addEdge(6, 6, -1);
+      // test.addNode(1);
+      // test.addNode(2);
+      // test.addNode(3);
+      // test.addNode(4);
+      // test.addNode(6);
+      // test.addNode(5);
+      // test.addEdge(1, 2, 1);
+      // test.addEdge(2, 3, 5);
+      // test.addEdge(3, 4, 10);
+      // test.addEdge(4, 5, 2);
+      // test.addEdge(5, 2, -1);
+      // test.addEdge(5, 4, -2);
+      // test.addEdge(4, 3, -1);
+      // test.addEdge(2, 6, 10);
+      // test.addEdge(6, 5, 2);
+      // test.addEdge(6, 6, -1);
 
 
-      const traversalArrays = test.setTraversalArrays();
-      const gainArrays = test.setGainArrays();
-      const totalGain = test.totalGain();
+      const traversalArrays = this.sfg.setTraversalArrays();
+      const gainArrays = this.sfg.setGainArrays();
+      const totalGain = this.sfg.totalGain();
 
       // Combining the results into a single object
       // Update results
@@ -235,7 +332,10 @@ export default {
   border: 2px solid #ddd;
   width: 1000px;
   height: 480px;
-  background-color: aliceblue;
+  background-color: white;
   margin: auto;
 }
 </style>
+<!-- نضيف gain  -->
+<!-- نحط الاسهم  -->
+<!-- نظبط الاحداثيات -->
