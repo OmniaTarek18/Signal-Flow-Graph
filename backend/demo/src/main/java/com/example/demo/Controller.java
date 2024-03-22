@@ -11,9 +11,10 @@ public class Controller {
 
     @GetMapping("routh")
     public String user(@RequestBody String equation) {
-        Routh test = new RouthImp();
+        Routh system = new RouthImp(equation);
         System.out.println(equation);
-        return test.rootFinder().toString();
+        return system.rootFinder().toString();
+        // return system.isStable() ? "System is Stable" : system.rootFinder().toString();
     }
     
 }
