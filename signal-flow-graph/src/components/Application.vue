@@ -207,9 +207,9 @@ export default {
     },
     connectNodes() {
       // check for missing parameters
-      if (!this.checkParameters()) 
+      if (!this.checkParameters())
         return;
-      
+
       // find if there is connection already 
       if (this.connections && this.isConnectionExist())
         return;
@@ -256,34 +256,23 @@ export default {
       });
     },
 
-    // Method to show the modal
     showResultModal() {
-      // will be removed later 
-      // const test = new Graph();
-      // Add nodes and edges
-      // test.addNode(1);
-      // test.addNode(2);
-      // test.addNode(3);
-      // test.addNode(4);
-      // test.addNode(6);
-      // test.addNode(5);
-      // test.addEdge(1, 2, 1);
-      // test.addEdge(2, 3, 5);
-      // test.addEdge(3, 4, 10);
-      // test.addEdge(4, 5, 2);
-      // test.addEdge(5, 2, -1);
-      // test.addEdge(5, 4, -2);
-      // test.addEdge(4, 3, -1);
-      // test.addEdge(2, 6, 10);
-      // test.addEdge(6, 5, 2);
-      // test.addEdge(6, 6, -1);
 
+      // Check if the graph is empty
+      if (this.nodes.length === 0) {
+        alert('The graph is empty.');
+        return;
+      }
+      //if the graph is one node there will be no paths so give alert
+      if (this.nodes.length === 1) {
+        alert('The graph is only one node!');
+        return;
+      }
 
       const traversalArrays = this.sfg.setTraversalArrays();
       const gainArrays = this.sfg.setGainArrays();
       const totalGain = this.sfg.totalGain();
 
-      // Combining the results into a single object
       // Update results
       this.results = {
         traversalArrays: traversalArrays,
@@ -336,6 +325,3 @@ export default {
   margin: auto;
 }
 </style>
-<!-- نضيف gain  -->
-<!-- نحط الاسهم  -->
-<!-- نظبط الاحداثيات -->
