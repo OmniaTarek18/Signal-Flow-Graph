@@ -1,7 +1,7 @@
 <template>
   <Application />
   <CheckStability />
-  <ResultModal/>
+  <ResultModal />
 </template>
 
 <script>
@@ -25,12 +25,12 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: white;
-  background-color: #3d6e9c;
+  background-color: #577ea2;
 
 }
 
 html {
-  background-color: #3d6e9c;
+  background-color: #577ea2;
 
 }
 </style>

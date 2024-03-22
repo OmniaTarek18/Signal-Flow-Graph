@@ -103,9 +103,11 @@ export default {
       var anchor = new Konva.Circle({
         x: x,
         y: y,
-        radius: 8,
+        radius: 6,
         strokeWidth: 2,
         draggable: true,
+        fill: 'grey',
+        opacity: 0,
       });
       this.layer.add(anchor);
 
@@ -153,11 +155,12 @@ export default {
       return this.connections.find(ele => ele.src === this.selectedSrc && ele.dest === this.selectedDest);
     },
     addStraightLine(start, end) {
+      const gain = this.gain;
       const arrow = new Konva.Shape({
-        stroke: "black",
-        opacity: 0.7,
+        stroke: "grey",
         strokeWidth: 3,
         id: `${this.selectedSrc}${this.selectedDest}`,
+
         sceneFunc: (ctx, shape) => {
           ctx.beginPath();
           ctx.moveTo(start.getClientRect().x + 50, start.getClientRect().y + 25);
@@ -166,7 +169,15 @@ export default {
           ctx.moveTo(end.getClientRect().x - 10, end.getClientRect().y + 25 - 5);
           ctx.lineTo(end.getClientRect().x, end.getClientRect().y + 25);
           ctx.lineTo(end.getClientRect().x - 10, end.getClientRect().y + 25 + 5);
+
           ctx.fillStrokeShape(shape);
+          // Text
+          const text = `${gain}`;
+          const midX = (start.getClientRect().x + 50 + end.getClientRect().x) / 2;
+          const midY = (start.getClientRect().y + 25 + end.getClientRect().y + 25) / 2;
+          ctx.font = 'bold 20px Arial';
+          ctx.fillStyle = '#3d6e9c';
+          ctx.fillText(text, midX, midY);
         },
       });
       return arrow;
@@ -174,9 +185,9 @@ export default {
     addCurvedLine(start, end, control, direc) {
       const arrowSize = 10;
       const arrowAngle = Math.PI / 6;
+      const gain = this.gain;
       const arrow = new Konva.Arrow({
-        stroke: "black",
-        opacity: 0.7,
+        stroke: "grey",
         strokeWidth: 3,
         id: `${this.selectedSrc}${this.selectedDest}`,
         sceneFunc: (ctx, shape) => {
@@ -200,6 +211,16 @@ export default {
           ctx.lineTo(x1, y1);
           ctx.lineTo(x2, y2);
           ctx.closePath();
+
+          // Text
+          const text = `${gain}`;
+          // using formula for quadratic Bézier curves to calculate middle points (B(t)=(1−t)^2P0​+2(1−t)tP1​+t2P2​)
+          const midX = 0.25 * (start.getClientRect().x + direc) + 0.5 * control.x() + 0.25 * (end.getClientRect().x + 50 - direc);
+          const midY = 0.25 * (start.getClientRect().y + 25) + 0.5 * control.y() + 0.25 * (end.getClientRect().y + 25);
+          ctx.font = 'bold 20px Arial';
+          ctx.fillStyle = '#3d6e9c';
+          ctx.fillText(text, midX, midY);
+
           ctx.fillStrokeShape(shape);
         },
       });
@@ -248,10 +269,10 @@ export default {
       // events to be able to resize any curved lines
       arrow.on("click", function () {
         document.body.style.cursor = "pointer";
-        control.fill('grey');
+        control.opacity(1);
       });
       this.stage.on("dblclick", function () {
-        control.fill('white');
+        control.opacity(0);
         document.body.style.cursor = "default";
       });
     },
