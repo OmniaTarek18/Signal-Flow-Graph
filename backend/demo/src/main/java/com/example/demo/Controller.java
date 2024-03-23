@@ -13,8 +13,7 @@ public class Controller {
     public String user(@RequestBody String equation) {
         Routh system = new RouthImp(equation);
         System.out.println(equation);
-        return system.rootFinder().toString();
-        // return system.isStable() ? "System is Stable" : system.rootFinder().toString();
+        return system.isStable() ? "System is stable" :  system.rootFinder();
     }
-    
+
 }

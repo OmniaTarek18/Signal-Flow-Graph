@@ -1,8 +1,9 @@
 package com.example.demo;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.*;
 
+import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math3.analysis.solvers.LaguerreSolver;
 import org.apache.commons.math3.complex.Complex;
 
@@ -18,74 +19,98 @@ public class RouthImp implements Routh {
         parseInput(coeff);
     }
 
-
     public void setEquation(String equation) {
         parseInput(equation);
     }
-
 
     public double[] getEquation() {
         return coeff;
     }
 
+    // Function to parse the input to double array, aka coeff
     private void parseInput(String equation) {
 
-        ArrayList<Double> coeff = new ArrayList<>();
-        equation = equation.replaceAll(" ", "");
-        System.out.println(equation);
+        equation = equation.replaceAll(" |\\[|\\]", "");
+        String []tmp = equation.split(","); 
+        this.coeff = new double[tmp.length];
 
-        // Define a pattern to match terms in the equation
-        Pattern termPattern = Pattern.compile("([-+]?\\d*)x\\^?(\\d+)?");
-
-        // Create a matcher for the equation
-        Matcher matcher = termPattern.matcher(equation);
-
-        int end = 0;
-        // Iterate over the terms and extract coefficients
-        while (matcher.find()) {
-            end = matcher.end();
-            String coefficientString = matcher.group(1); // Coefficient part of the term
-            String exponentString = matcher.group(2); // Exponent part of the term (optional)
-
-            // If coefficient part is empty, it means it's 1
-            double coefficient = (coefficientString.isEmpty()) ? 1 : Double.parseDouble(coefficientString);
-
-            // If exponent part is empty, it means it's 1
-            int exponent = (exponentString != null) ? Integer.parseInt(exponentString) : 1;
-            
-            if(coeff.size() <= exponent){
-                for(int i = coeff.size(); i <= exponent; i++) coeff.add(0.0);
-            }
-
-            coeff.set(exponent, coefficient);
-            System.out.println(coeff);
-        }
-        if(coeff.size() == 0)coeff.add(0.0);
-        coeff.set(0, Double.parseDouble(equation.substring(end)));
-        System.out.println(coeff);
-        
-        this.coeff = new double[coeff.size()];
-        for(int i = 0; i < coeff.size(); i++) {
-            this.coeff[i] = coeff.get(i);
+        for(int i = 0; i < coeff.length; i++){
+            this.coeff[i] = Double.parseDouble(tmp[i]);
         }
     }
-
 
     public boolean isStable() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isStable'");
+        double [][]routhTable = init_routh_table(); // Initializing  routh table
+        if(routhTable[0][0] * routhTable[1][0] < 0) return false;
+        int rows = coeff.length;
+        int cols = routhTable[0].length;
+
+        for(int i = 0; i < rows - 2; i++){
+            for(int j = 1; j < cols; j++){
+                routhTable[i+2][j - 1] = (routhTable[i + 1][0] * routhTable[i][j] - routhTable[i][0] * routhTable[i + 1][j]) / routhTable[i+1][0];
+            }
+            if(routhTable[i+2][0] == 0) routhTable[i+2][0] = Double.MIN_VALUE;
+            else if(routhTable[i+1][0] * routhTable[i+2][0] < 0) return false;
+        }
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < cols; j++){
+                System.out.print(routhTable[i][j]+ " ");
+            }
+            System.out.println();
+        }
+        return true;
     }
 
+    private double[][]  init_routh_table() {
+        // Get number of cols
+        int rows = coeff.length;
+        int cols = 0;
+        int tmp = rows - 1;
+        while(tmp >= 0){
+            tmp -= 2;
+            cols ++;
+        }
+        double[][] routhTable = new double[rows][cols];
 
-    public ArrayList<Complex> rootFinder() {
+        // Set the first two rows
+        int firstRowCol = 0, secRowCol = 0;
+        for(int i = coeff.length - 1; i > -1; i--){
+            if(firstRowCol == secRowCol) routhTable[0][firstRowCol++] = coeff[i];
+            else routhTable[1][secRowCol++] = coeff[i];
+        }
+
+        return routhTable;
+    }
+
+    public String rootFinder() {
+        PolynomialFunction poly = new PolynomialFunction(coeff);
+        System.out.println(poly);
         // Create a solver
         LaguerreSolver solver = new LaguerreSolver();
         // Find the roots
         ArrayList<Complex> roots = new ArrayList<>(Arrays.asList(solver.solveAllComplex(coeff, 0))); // Finds all complex roots
-        for (int i = 0; i < roots.size() ; i++) {
-            if(roots.get(i).getReal() < 0) roots.remove(i--); // Remove the LHS roots
+                                                                                                      
+        for (int i = 0; i < roots.size(); i++) {
+            if (roots.get(i).getReal() < 0)
+                roots.remove(i--); // Remove the LHS roots
         }
-        return roots;
+        return parseOutput(roots);
+    }
+
+    private String parseOutput(ArrayList<Complex> roots) {
+        StringBuilder str = new StringBuilder();
+        str.append("System is unstable\n");
+        str.append("Number of roots in the RHS: ");
+        str.append(roots.size());
+        for(Complex root: roots){
+            str.append("\n");
+            str.append("Real part: ");
+            str.append(String.format("%.4g", root.getReal()));
+            str.append("\t");
+            str.append("Imaginary part: ");
+            str.append(String.format("%.4g", root.getImaginary()));
+        }
+        return str.toString();
     }
 
 }
