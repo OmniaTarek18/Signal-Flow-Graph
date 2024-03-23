@@ -10,7 +10,7 @@
                 <!-- dispalying the results -->
                 <div v-if="result" class="result-container">
                     <p class="result-info" style="text-align: left;">
-                        <span class="highlight">Total Gain:</span> <span style="color: black;">{{ result.totalGain
+                        <span class="highlight">Total Gain:</span> <span style="color: black;">{{ result.totalGain.total_gain
                             }}</span>
                     </p>
 
@@ -42,8 +42,8 @@
                         <hr>
                         <h3 class="subtitle section-title"><span class="highlight">Loops Not Touching Path</span></h3>
                         <ul class="result-list">
-                            <li v-for="(loop, index) in result.traversalArrays.loopsNotTouchingPath" :key="index">Loop
-                                not Touching Path{{ index + 1 }}: {{ loop }}</li>
+                            <li v-for="(loop, index) in result.traversalArrays.loopsNotTouchingPath" :key="index">Loops
+                                not Touching Path{{ index + 1 }}: <span v-if="loop.length">{{ loop }}</span></li>
                         </ul>
                     </div>
                     <div class="result-section" v-if="result.traversalArrays">
@@ -52,7 +52,7 @@
                                 Path</span></h3>
                         <ul class="result-list">
                             <li v-for="(ntLoop, index) in result.traversalArrays.nonTouchingLoopsNotTouchingPath"
-                                :key="index">Non-Touching Loop not Touching Path {{ index + 1 }}: {{ ntLoop }}</li>
+                                :key="index">Non-Touching Loops not Touching Path {{ index + 1 }}: <span v-if="ntLoop.length">{{ ntLoop }}</span></li>
                         </ul>
                     </div>
                     <div class="result-section" v-if="result.gainArrays">
@@ -85,8 +85,8 @@
                         <h3 class="subtitle section-title"><span class="highlight">Gain of Loops Not Touching
                                 Path</span></h3>
                         <ul class="result-list">
-                            <li v-for="(gain, index) in result.gainArrays.gainOfLoopsNotTouchingPath" :key="index">Loop
-                                {{ index + 1 }} not Touching Path Gain: {{ gain }}</li>
+                            <li v-for="(gain, index) in result.gainArrays.gainOfLoopsNotTouchingPath" :key="index">Loops
+                                not Touching Path {{ index + 1 }} Gain: <span v-if="gain.length">{{ gain }}</span></li>
                         </ul>
                     </div>
                     <div class="result-section" v-if="result.gainArrays">
@@ -95,7 +95,20 @@
                                 Touching Path</span></h3>
                         <ul class="result-list">
                             <li v-for="(gain, index) in result.gainArrays.gainOfNonTouchingLoopsNotTouchingPath"
-                                :key="index">Non-Touching Loop {{ index + 1 }} not Touching Path Gain: {{ gain }}</li>
+                                :key="index">Non-Touching Loops not Touching Path {{ index + 1 }} Gain: <span v-if="gain != 0">{{ gain }}</span></li>
+                        </ul>
+                    </div>
+                    <div class="result-section" v-if="result.totalGain">
+                        <hr>
+                        <h3 class="subtitle section-title"><span class="highlight">Delta</span></h3>
+                        <span style="color: black;">{{ result.totalGain.delta}}</span>
+                    </div>
+                    <div class="result-section" v-if="result.gainArrays">
+                        <hr>
+                        <h3 class="subtitle section-title"><span class="highlight">Delta of Each Path</span></h3>
+                        <ul class="result-list">
+                            <li v-for="(delta, index) in result.totalGain.deltaOfEachPath"
+                                :key="index">Delta{{ index + 1 }} : {{ delta }}</li>
                         </ul>
                     </div>
                 </div>
