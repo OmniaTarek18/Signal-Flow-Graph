@@ -37,7 +37,7 @@
       </div>
 
       <div class="p-2">
-        <button class="btn btn-warning me-2" @click="showResultModal" :disabled="simulationRunning">
+        <button class="btn btn-warning me-2" @click="showResultModal" >
           <i class="fas fa-play"></i> Solve
         </button>
       </div>
@@ -47,6 +47,7 @@
 
     </div>
     <div id="simulation-container"></div>
+    <hr>
   </div>
 </template>
 
@@ -132,19 +133,7 @@ export default {
       }
       return true;
     },
-    // addText() {
-    //   var text = new Konva.Text({
-    //     x: 100, // Example x position
-    //     y: 100, // Example y position
-    //     text: `${this.gain}`, // The text you want to display
-    //     fontSize: 16,
-    //     fill: 'black',
-    //     width: 25 * 2,
-    //     height: 25 * 2,
 
-    //   });
-    //   return text;
-    // },
     addConnection() {
       this.connections.push({
         src: this.selectedSrc,
@@ -241,15 +230,12 @@ export default {
       // add the edge to the graph
       this.sfg.addEdge(this.selectedSrc, this.selectedDest, this.gain);
 
-      const group = new Konva.Group();
       const start = this.nodes[this.selectedSrc - 1].group;
       const end = this.nodes[this.selectedDest - 1].group;
-      // var text = this.addText();
 
       if ((this.selectedDest - this.selectedSrc) === 1) {
         const arrow = this.addStraightLine(start, end);
-        group.add(arrow)
-        this.layer.add(group);
+        this.layer.add(arrow);
         this.stage.draw();
         return;
       }
