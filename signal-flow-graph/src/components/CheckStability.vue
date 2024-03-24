@@ -17,7 +17,7 @@
           <div class="row  mt-4">
                <div class="col" v-for="(item, index) in input">
                     <div class="row justify-content-center">
-                         <label class="form-label" style="width: 40px; height: 40px;font-size: x-large;"
+                         <label class="form-label me-3" style="width: 40px; height: 40px;font-size: x-large;"
                               v-if="order != index">X<sup>{{
                               order - index }}</sup></label>
                          <input class="form-control" style="width: 60px; height: 40px;" v-model="input[index]">
@@ -32,10 +32,11 @@
           </button>
      </div>
      <div class="p-2" v-if="showResult" ref="resultDiv">
-          <p>{{ result }}done</p>
+          <p style="font-size: large;">{{ result }}</p>
      </div>
 </template>
 <script>
+import axios from 'axios';
 export default {
      data() {
           return {
@@ -44,14 +45,21 @@ export default {
           };
      },
      methods: {
-          solve() {
-               // send the array and display the result 
-               this.showResult = true;
-               // After showing the result, scroll to the result element
-               this.$nextTick(() => {
-                    this.scrollDown();
-               });
-          },
+          // async solve() {
+          //      const array = this.input;
+          //      // send the array and display the result 
+          //      try {
+          //           const response = await axios.post('//url of backend', array);
+          //      }
+          //      catch (error) {
+          //           console.log(error);
+          //      }
+          //      // After showing the result, scroll to the result element
+          //      this.showResult = true;
+          //      this.$nextTick(() => {
+          //           this.scrollDown();
+          //      });
+          // },
           scrollDown() {
                // Scroll to the result element using its reference
                const resultDiv = this.$refs.resultDiv;
@@ -77,9 +85,6 @@ export default {
 
                }
           },
-          result() {
-               // format the result to be readable
-          }
      }
 
 }

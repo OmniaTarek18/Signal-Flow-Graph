@@ -25,12 +25,11 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: white;
-  background-color: #577ea2;
-
+  background-color: #6191bb
 }
 
 html {
-  background-color: #577ea2;
+  background-color: #6191bb;
 
 }
 </style>
