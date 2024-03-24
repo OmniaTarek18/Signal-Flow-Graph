@@ -262,10 +262,6 @@ export default class Graph {
     // Gain of non-touching loops not touching path
     for (let i = 0; i < this.nonTouchingLoopsNotTouchingPath.length; i++) {
       this.gainOfNonTouchingLoopsNotTouchingPath.push([]);
-      if (this.nonTouchingLoopsNotTouchingPath[i].length === 0) {
-        this.gainOfNonTouchingLoopsNotTouchingPath[i].push([]);
-        continue;
-      }
       for (let j = 0; j < this.nonTouchingLoopsNotTouchingPath[i].length; j++) {
         let nonTouchingPathsGain = this.calculateGain(this.nonTouchingLoopsNotTouchingPath[i][j])
         this.gainOfNonTouchingLoopsNotTouchingPath[i].push(nonTouchingPathsGain[0] * nonTouchingPathsGain[1]);

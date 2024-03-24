@@ -42,8 +42,8 @@
                         <hr>
                         <h3 class="subtitle section-title"><span class="highlight">Loops Not Touching Path</span></h3>
                         <ul class="result-list">
-                            <li v-for="(loop, index) in result.traversalArrays.loopsNotTouchingPath" :key="index">Loops
-                                not Touching Path{{ index + 1 }}: <span v-if="loop.length">{{ loop }}</span></li>
+                            <li v-for="(loop, index) in result.traversalArrays.loopsNotTouchingPath" :key="index">
+                                <template v-if="loop.length">Loops not Touching Path{{ index + 1 }}: {{ loop }}</template></li>
                         </ul>
                     </div>
                     <div class="result-section" v-if="result.traversalArrays">
@@ -52,7 +52,7 @@
                                 Path</span></h3>
                         <ul class="result-list">
                             <li v-for="(ntLoop, index) in result.traversalArrays.nonTouchingLoopsNotTouchingPath"
-                                :key="index">Non-Touching Loops not Touching Path {{ index + 1 }}: <span v-if="ntLoop.length">{{ ntLoop }}</span></li>
+                                :key="index"><template v-if="ntLoop.length">Non-Touching Loops not Touching Path {{ index + 1 }}: {{ ntLoop }}</template></li>
                         </ul>
                     </div>
                     <div class="result-section" v-if="result.gainArrays">
@@ -85,8 +85,8 @@
                         <h3 class="subtitle section-title"><span class="highlight">Gain of Loops Not Touching
                                 Path</span></h3>
                         <ul class="result-list">
-                            <li v-for="(gain, index) in result.gainArrays.gainOfLoopsNotTouchingPath" :key="index">Loops
-                                not Touching Path {{ index + 1 }} Gain: <span v-if="gain.length">{{ gain }}</span></li>
+                            <li v-for="(gain, index) in result.gainArrays.gainOfLoopsNotTouchingPath" :key="index">
+                                <template v-if="gain.length">Loops not Touching Path {{ index + 1 }} Gain: {{ gain }}</template></li>
                         </ul>
                     </div>
                     <div class="result-section" v-if="result.gainArrays">
@@ -95,7 +95,7 @@
                                 Touching Path</span></h3>
                         <ul class="result-list">
                             <li v-for="(gain, index) in result.gainArrays.gainOfNonTouchingLoopsNotTouchingPath"
-                                :key="index">Non-Touching Loops not Touching Path {{ index + 1 }} Gain: <span v-if="gain != 0">{{ gain }}</span></li>
+                                :key="index"><template v-if="gain.length"> Loops not Touching Path {{ index + 1 }} Gain: {{ gain }}</template></li>
                         </ul>
                     </div>
                     <div class="result-section" v-if="result.totalGain">
