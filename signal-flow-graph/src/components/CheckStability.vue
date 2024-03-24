@@ -50,6 +50,8 @@ export default {
           //      // send the array and display the result 
           //      try {
           //           const response = await axios.post('//url of backend', array);
+          //           this.result = response.data;
+          //           console.log(this.result);
           //      }
           //      catch (error) {
           //           console.log(error);
