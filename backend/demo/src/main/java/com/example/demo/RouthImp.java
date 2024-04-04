@@ -45,12 +45,21 @@ public class RouthImp implements Routh {
         int rows = coeff.length;
         int cols = routhTable[0].length;
 
+        // Apply RH 
         for(int i = 0; i < rows - 2; i++){
             for(int j = 1; j < cols; j++){
                 routhTable[i+2][j - 1] = (routhTable[i + 1][0] * routhTable[i][j] - routhTable[i][0] * routhTable[i + 1][j]) / routhTable[i+1][0];
             }
-            if(routhTable[i+2][0] == 0) routhTable[i+2][0] = Double.MIN_VALUE;
-            else if(routhTable[i+1][0] * routhTable[i+2][0] < 0) return false;
+            if(isZeroRow(routhTable[i+2])) fixRow(i+2, routhTable); // Handling zero row case
+            if(routhTable[i+2][0] == 0) routhTable[i+2][0] = Double.MIN_VALUE; // Handling division by zero case
+            else if(routhTable[i+1][0] * routhTable[i+2][0] < 0){
+                for(int k = 0; k < rows; k++){
+                    for(int j = 0; j < cols; j++){
+                        System.out.print(routhTable[k][j]+ " ");
+                    }
+                    System.out.println();
+                }
+                return false; }// Checking the sign
         }
         for(int i = 0; i < rows; i++){
             for(int j = 0; j < cols; j++){
@@ -59,6 +68,19 @@ public class RouthImp implements Routh {
             System.out.println();
         }
         return true;
+    }
+
+    private boolean isZeroRow(double[] row) {
+        for(double num : row) if(num != 0) return false;
+        return true;
+    }
+
+    private void fixRow(int row, double[][] routhTable) {
+        int pow = routhTable.length - row;
+        for(int i = 0; i < routhTable[0].length; i++){
+            routhTable[row][i] = routhTable[row - 1][i] * pow;
+            pow -= 2;
+        }
     }
 
     private double[][]  init_routh_table() {
