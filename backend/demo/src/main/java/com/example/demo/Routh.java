@@ -4,6 +4,6 @@ public interface Routh {
     void setEquation(String equation);
     double[] getEquation();
     boolean isStable();
-    String rootFinder();
+    String[] rootFinder();
 }
 

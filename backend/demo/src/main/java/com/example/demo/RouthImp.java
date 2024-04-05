@@ -84,27 +84,19 @@ public class RouthImp implements Routh {
     }
 
     private double[][]  init_routh_table() {
-        // Get number of cols
         int rows = coeff.length;
-        int cols = 0;
-        int tmp = rows - 1;
-        while(tmp >= 0){
-            tmp -= 2;
-            cols ++;
-        }
+        int cols = (rows - 1) / 2 + 1;    // Get number of cols
         double[][] routhTable = new double[rows][cols];
-
         // Set the first two rows
         int firstRowCol = 0, secRowCol = 0;
         for(int i = coeff.length - 1; i > -1; i--){
             if(firstRowCol == secRowCol) routhTable[0][firstRowCol++] = coeff[i];
             else routhTable[1][secRowCol++] = coeff[i];
         }
-
         return routhTable;
     }
 
-    public String rootFinder() {
+    public String[] rootFinder() {
         PolynomialFunction poly = new PolynomialFunction(coeff);
         System.out.println(poly);
         // Create a solver
@@ -119,20 +111,20 @@ public class RouthImp implements Routh {
         return parseOutput(roots);
     }
 
-    private String parseOutput(ArrayList<Complex> roots) {
+    private String[] parseOutput(ArrayList<Complex> roots) {
         StringBuilder str = new StringBuilder();
-        str.append("System is unstable\n");
+        str.append("System is unstable,");
         str.append("Number of roots in the RHS: ");
         str.append(roots.size());
         for(Complex root: roots){
-            str.append("\n");
+            str.append(",");
             str.append("Real part: ");
             str.append(String.format("%.4g", root.getReal()));
             str.append("\t");
             str.append("Imaginary part: ");
             str.append(String.format("%.4g", root.getImaginary()));
         }
-        return str.toString();
+        return str.toString().split(",");
     }
 
 }
