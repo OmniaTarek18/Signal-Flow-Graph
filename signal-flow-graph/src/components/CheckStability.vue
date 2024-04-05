@@ -13,10 +13,10 @@
           <div class="row  mt-4">
                <div class="col" v-for="(item, index) in input">
                     <div class="row justify-content-center">
+                         <input class="form-control" style="width: 60px; height: 40px;" v-model="input[index]">
                          <label class="form-label me-3" style="width: 40px; height: 40px;font-size: x-large;"
                               v-if="order != index">X<sup>{{
                               order - index }}</sup></label>
-                         <input class="form-control" style="width: 60px; height: 40px;" v-model="input[index]">
                          <b v-if="order != index" style="font-size: xx-large;width: 10px;">+</b>
                     </div>
                </div>
@@ -28,7 +28,9 @@
           </button>
      </div>
      <div class="p-2" v-if="showResult" ref="resultDiv">
-          <p style="font-size: large;">{{ result }}</p>
+          <div v-for="line in result">
+               <p style="font-size: x-large;">{{ line }}</p>
+          </div>
      </div>
 </template>
 <script>
@@ -38,7 +40,7 @@ export default {
           return {
                order: "3",
                showResult: false,
-               result: "",
+               result: [],
           };
      },
      methods: {
