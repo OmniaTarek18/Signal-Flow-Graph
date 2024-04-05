@@ -23,7 +23,7 @@
           </div>
      </div>
      <div class="p-2">
-          <button class="btn btn-warning me-2" @click="solve">
+          <button class="btn btn-warning me-2" @click="solve" >
                Solve
           </button>
      </div>
