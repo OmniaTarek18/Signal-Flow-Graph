@@ -42,23 +42,25 @@ export default {
           };
      },
      methods: {
-          // async solve() {
-          //      const array = this.input;
-          //      // send the array and display the result 
-          //      try {
-          //           const response = await axios.post('//url of backend', array);
-          //           this.result = response.data;
-          //           console.log(this.result);
-          //      }
-          //      catch (error) {
-          //           console.log(error);
-          //      }
-          //      // After showing the result, scroll to the result element
-          //      this.showResult = true;
-          //      this.$nextTick(() => {
-          //           this.scrollDown();
-          //      });
-          // },
+          async solve() {
+               const array = this.input.map((ele) => parseInt(ele)).reverse();
+               console.log(array)
+               // send the array and display the result 
+               try {
+                    const response = await axios.post('http://localhost:8080/routh', array);
+                    console.log(response.data);
+                    this.result = response.data;
+
+               } catch (error) {
+                    console.log(error)
+               }
+
+               // After showing the result, scroll to the result element
+               this.showResult = true;
+               this.$nextTick(() => {
+                    this.scrollDown();
+               });
+          },
           scrollDown() {
                // Scroll to the result element using its reference
                const resultDiv = this.$refs.resultDiv;
