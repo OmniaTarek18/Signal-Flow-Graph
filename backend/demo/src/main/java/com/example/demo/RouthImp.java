@@ -43,6 +43,9 @@ public class RouthImp implements Routh {
         for (int i = 0; i < this.coeff.length; i++) {
             this.coeff[i] = handleZeros.get(i);
         }
+        // helloo !! remember to commit after merging any conflicts
+        // helloo !! remember to commit after merging any conflicts
+        // helloo !! remember to commit after merging any conflicts
     }
 
     // Check stability
