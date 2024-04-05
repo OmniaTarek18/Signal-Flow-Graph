@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Controller {
     @PostMapping("routh")
-    public String user(@RequestBody String equation) {
+    public String[] user(@RequestBody String equation) {
         Routh system = new RouthImp(equation);
         System.out.println(equation);
-        return system.isStable() ? "System is stable" :  system.rootFinder();
+        return system.isStable() ? new String[]{"System is stable"}:  system.rootFinder();
     }
 }

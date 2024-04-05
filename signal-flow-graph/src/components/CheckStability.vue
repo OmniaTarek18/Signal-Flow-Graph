@@ -1,3 +1,7 @@
+<!-- this component suppose to take a characteristic equation as input 
+     check stability of the system using Routh criteria and show that answer
+     if system in not stable list NUMBER and VALUE of poles in RHS of the s-plane -->
+
 <template>
      <h1 class="pt-4 text-center">Check stability</h1>
      <div class="container text-center">
@@ -5,7 +9,7 @@
                <div class="col">
                     <div class="row mt-4  justify-content-center">
                          <h5 class=" form-label">Order of the Equation</h5>
-                         <input class="form-control" type="number" min="1" style="width: 100px;" v-model="order">
+                         <input class="form-control" style="width: 100px;" v-model="order">
                     </div>
                </div>
 
@@ -38,7 +42,7 @@ import axios from 'axios';
 export default {
      data() {
           return {
-               order: "3",
+               order: 3,
                showResult: false,
                result: [],
           };
@@ -52,11 +56,9 @@ export default {
                     const response = await axios.post('http://localhost:8080/routh', array);
                     console.log(response.data);
                     this.result = response.data;
-
                } catch (error) {
                     console.log(error)
                }
-
                // After showing the result, scroll to the result element
                this.showResult = true;
                this.$nextTick(() => {
@@ -82,15 +84,9 @@ export default {
      computed: {
           input() {
                if (this.order) {
-                    console.log(this.order);
-                    try {
-                         const length = parseInt(this.order) + 1;
-                         if (length === 0) return;
-                         const array = new Array(length);
-                         return array.fill(0);
-                    } catch (error) {
-                         alert("Please, Enter valid number");
-                    }
+                    const length = parseInt(this.order) + 1;
+                    const array = new Array(length);
+                    return array.fill(0);
 
                }
           },
