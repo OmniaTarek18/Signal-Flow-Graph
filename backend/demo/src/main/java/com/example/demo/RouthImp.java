@@ -43,9 +43,6 @@ public class RouthImp implements Routh {
         for (int i = 0; i < this.coeff.length; i++) {
             this.coeff[i] = handleZeros.get(i);
         }
-        // helloo !! remember to commit after merging any conflicts
-        // helloo !! remember to commit after merging any conflicts
-        // helloo !! remember to commit after merging any conflicts
     }
 
     // Check stability
@@ -81,7 +78,8 @@ public class RouthImp implements Routh {
         return true;
     }
 
-    /*  It is used in isStable, to fix the zero row case
+    /* 
+     * It is used in isStable, to fix the zero row case
      *  Description : get the derivative of the auxiliary polynomial, and replace the row with it  
      */
 
