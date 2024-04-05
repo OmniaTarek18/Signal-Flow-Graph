@@ -37,6 +37,9 @@ public class RouthImp implements Routh {
         for(int i = 0; i < coeff.length; i++){
             this.coeff[i] = Double.parseDouble(tmp[i]);
         }
+        // helloo !! remember to commit after merging any conflicts
+        // helloo !! remember to commit after merging any conflicts
+        // helloo !! remember to commit after merging any conflicts
     }
 
     public boolean isStable() {
