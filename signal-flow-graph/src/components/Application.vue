@@ -5,10 +5,19 @@
     <div class="d-flex justify-content-center mb-4">
 
       <div class="p-2">
-        <button class="btn btn-primary me-2" @click="addNode"><i class="fas fa-plus"></i> Add Node</button>
+        <button class="btn btn-primary me-2" @click="addNode">
+          <i class="fas fa-plus"></i> Add Node
+        </button>
+        <button class="btn btn-outline-light me-2" @click="undo">
+          <i class="bi bi-arrow-counterclockwise"></i>
+        </button>
+
+        <button class="btn btn-outline-light" @click="redo">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
       </div>
 
-      <div class="input-group" style="width:800px;">
+      <div class="input-group" style="width:700px;">
         <div class="form-floating">
           <select class="form-select" id="floatingSelect" aria-label="Floating label select example"
             v-model="selectedSrc">
@@ -37,9 +46,10 @@
       </div>
 
       <div class="p-2">
-        <button class="btn btn-warning me-2" @click="showResultModal" >
+        <button class="btn btn-warning me-2" @click="showResultModal">
           <i class="fas fa-play"></i> Solve
         </button>
+
       </div>
 
       <!-- result component -->
@@ -66,23 +76,28 @@ export default {
     return {
       id: 0,
       nodes: [],
-      resize: false,
       selectedSrc: null,
       selectedDest: null,
       gain: null,
       connections: [],
       stage: null,
       layer: null,
+      undoStack: [],
+      redoStack: [],
       showModal: false, // flag to control modal visibility
       results: null, // data that will be displayed in the modal
       sfg: new Graph(),
-      dragBoundFunc: (pos) => ({ x: pos.x, y: pos.y }),
-
     };
   },
 
   methods: {
+    clearRedoStack() {
+      // refresh our redo stack
+      this.redoStack = [];
+    },
     addNode() {
+
+      this.clearRedoStack();
       this.id++;
       //add node to graph
       this.sfg.addNode(this.id);
@@ -91,6 +106,10 @@ export default {
       this.nodes.push(node);
       this.layer.add(node.group);
       this.stage.draw();
+      this.undoStack.push({
+        shape: node,
+        type: "node"
+      });
       node.group.on("mouseover", function () {
         document.body.style.cursor = "pointer";
       });
@@ -98,8 +117,67 @@ export default {
         document.body.style.cursor = "default";
       });
     },
+    undo() {
+      // undo stack contains shapes and connections
+      if (this.undoStack.length) {
 
-    //   use it for control put no draggable 
+        // remove last element we draw
+        const element = this.undoStack.pop();
+        const shapeToRemove = element.shape.group;
+
+        // remove that element from canvas 
+        shapeToRemove.remove();
+
+        if (element.type === "node") {
+          this.sfg.deleteNode(this.id);
+          this.nodes.pop();
+
+          // save all information of these connections in redoStack and node 
+          const connectionsToRemove = this.removeConnections(this.id);
+          this.redoStack.push({
+            element: element,
+            connections: connectionsToRemove
+          });
+          this.id--;
+        }
+      }
+    },
+    removeConnections(id) {
+      let connectionsToRemove = [];
+      this.connections.forEach((element) => {
+        if (element.src === id || element.dest === id ||element.src == id-1) {
+          connectionsToRemove.push(element);
+          element.arrow.remove();
+          this.sfg.deleteEdge(element.src, element.dest);
+        }
+      });
+      this.connections = this.connections.filter((ele) => ele.src !== id && ele.dest !== id);
+      // remove outgoing connections to the sink
+      this.connections = this.connections.filter((ele) => ele.src !== id-1);
+      return connectionsToRemove;
+    },
+    redo() {
+      if (this.redoStack.length) {
+        const redoElement = this.redoStack.pop();
+        this.undoStack.push(redoElement.element);
+        
+        if (redoElement.element.type === "node") {
+          this.layer.add(redoElement.element.shape.group);
+          this.id++;
+          // put the node back in the array
+          this.nodes.push(redoElement.element.shape);
+          // add it to the graph
+          this.sfg.addNode(this.id);
+          redoElement.connections.forEach((ele) => {
+            this.layer.add(ele.arrow);
+            this.connections.push(ele);
+            this.sfg.addEdge(ele.src,ele.dest,ele.gain);
+          });
+        }
+      }
+
+    },
+    //   use it for control the curved line 
     buildAnchor(x, y) {
       var anchor = new Konva.Circle({
         x: x,
@@ -134,10 +212,12 @@ export default {
       return true;
     },
 
-    addConnection() {
+    addConnection(arrow,gain) {
       this.connections.push({
         src: this.selectedSrc,
         dest: this.selectedDest,
+        gain: this.gain,
+        arrow: arrow,
       });
     },
     isConnectionExist() {
@@ -216,6 +296,7 @@ export default {
       return arrow;
     },
     connectNodes() {
+      this.clearRedoStack();
       // check for missing parameters
       if (!this.checkParameters())
         return;
@@ -223,9 +304,6 @@ export default {
       // find if there is connection already 
       if (this.connections && this.isConnectionExist())
         return;
-
-      // push the new connection to prevent make the same connection later
-      this.addConnection();
 
       // add the edge to the graph
       this.sfg.addEdge(this.selectedSrc, this.selectedDest, this.gain);
@@ -235,8 +313,9 @@ export default {
 
       if ((this.selectedDest - this.selectedSrc) === 1) {
         const arrow = this.addStraightLine(start, end);
+        // push the new connection to prevent make the same connection later
+        this.addConnection(arrow);
         this.layer.add(arrow);
-        this.stage.draw();
         return;
       }
       // else
@@ -250,6 +329,8 @@ export default {
       }
       const control = this.buildAnchor(pos.x, pos.y);
       const arrow = this.addCurvedLine(start, end, control, lineDirc);
+      // push the new connection to prevent make the same connection later
+      this.addConnection(arrow);
       this.layer.add(arrow);
 
       // events to be able to resize any curved lines
