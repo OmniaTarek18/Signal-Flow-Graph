@@ -16,20 +16,36 @@
                          <input class="form-control" style="width: 60px; height: 40px;" v-model="input[index]">
                          <label class="form-label me-3" style="width: 40px; height: 40px;font-size: x-large;"
                               v-if="order != index">X<sup>{{
-                              order - index }}</sup></label>
+                                   order - index }}</sup></label>
                          <b v-if="order != index" style="font-size: xx-large;width: 10px;">+</b>
                     </div>
                </div>
           </div>
      </div>
-     <div class="p-2">
-          <button class="btn btn-warning me-2" @click="solve" >
-               Solve
-          </button>
+
+     <div class="mb-4 p-4 position-relative">
+          <button type="button" style="width: 100px;" class="btn btn-warning position-absolute bottom-0 start-50 translate-middle-x" data-bs-toggle="modal" data-bs-target="#exampleModal"
+               @click="solve">
+               solve</button>
      </div>
-     <div class="p-2" v-if="showResult" ref="resultDiv">
-          <div v-for="line in result">
-               <p style="font-size: x-large;">{{ line }}</p>
+     <!-- Modal -->
+     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+               <div class="modal-content">
+                    <div class="modal-header">
+                         <h5 class="modal-title" style="font-weight: bold;color:#08c0ee;" id="exampleModalLabel">Answer
+                         </h5>
+                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="color: black;">
+                         <div v-for="line in result">
+                              {{ line }}</div>
+
+                    </div>
+                    <div class="modal-footer">
+                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+               </div>
           </div>
      </div>
 </template>
@@ -55,28 +71,9 @@ export default {
                } catch (error) {
                     console.log(error)
                }
-               // After showing the result, scroll to the result element
-               this.showResult = true;
-               this.$nextTick(() => {
-                    this.scrollDown();
-               });
           },
-          scrollDown() {
-               // Scroll to the result element using its reference
-               const resultDiv = this.$refs.resultDiv;
-               if (resultDiv) {
-                    resultDiv.scrollIntoView({ behavior: "smooth", block: "end" });
-               }
-          }
      },
-     mounted() {
-          // Watch for changes in visibility
-          this.$watch('$refs.scrollTarget', (newValue) => {
-               if (newValue) {
-                    this.scrollToElement(newValue);
-               }
-          });
-     },
+
      computed: {
           input() {
                if (this.order) {
@@ -96,4 +93,3 @@ export default {
 
 }
 </script>
-<style></style>

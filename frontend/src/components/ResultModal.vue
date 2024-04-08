@@ -199,7 +199,7 @@ export default {
 }
 
 .highlight {
-    color: rgb(8, 192, 238);
+    color: #08c0ee;
 }
 
 .section-title {
