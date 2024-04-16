@@ -25,12 +25,14 @@ export default class Graph {
     const edge = new Edge(dest, gain);
     this.graph.get(src).push(edge);
   }
+
   deleteNode(node) {
     if (this.graph.size) {
       this.graph.delete(node);
-      this.sink = node-1;
+      this.sink = node - 1;
     }
   }
+
   deleteEdge(src, dest) {
     if (this.graph.has(src)) {
       let edges = this.graph.get(src);
@@ -38,6 +40,7 @@ export default class Graph {
       this.graph.set(src, edges);
     }
   }
+
   findForwardPaths() {
     let visitedNodes = new Array(this.graph.size + 1).fill(false);
     let path = [];
@@ -145,7 +148,7 @@ export default class Graph {
   findNonTouchingLoops(allLoops) {
     let nontouching = [];
     const recursiveFind = (start, currentCombination) => {
-      // base case as the function has found a valid non touching loop combination and there is no need to continue recursing
+      // base case as the function has found a valid non touching loop combination and there is no need to continue recursing.
       //if the current combination has more than one loop add it to the nontouching array
       if (currentCombination.length > 1) {
         nontouching.push(currentCombination);
@@ -169,14 +172,24 @@ export default class Graph {
     
     return nontouching;
   }
-
   totalGain() {
     let delta = 1;
     for (let i = 0; i < this.gainOfLoops.length; i++) {
       delta -= this.gainOfLoops[i];
     }
-    for (let i = 0; i < this.gainOfNonTouchingLoops.length; i++) {
-      delta += this.gainOfNonTouchingLoops[i];
+
+    const numLoopsInEachCombination = this.nonTouchingLoops.map(combination => combination.length);
+    let numOfNon_touching = this.nonTouchingLoops.length;
+    for (let i = 0; i < numOfNon_touching; i++) {
+      
+      let product = this.gainOfNonTouchingLoops[i];
+      if (numLoopsInEachCombination[i] % 2 === 0) {
+        delta += product;
+      } else {
+        delta -= product;
+      }
+
+
     }
     console.log("Delta: ", delta);
 
@@ -263,7 +276,11 @@ export default class Graph {
     // Gain of non-touching loops
     for (let i = 0; i < this.nonTouchingLoops.length; i++) {
       let nonTouchingGain = this.calculateGain(this.nonTouchingLoops[i]);
-      this.gainOfNonTouchingLoops.push(nonTouchingGain[0] * nonTouchingGain[1]);
+      let product = 1;
+      for (let gain of nonTouchingGain) {
+        product *= gain;
+      }
+      this.gainOfNonTouchingLoops.push(product);
     }
 
     // Gain of loops not touching path
@@ -277,7 +294,11 @@ export default class Graph {
     // Gain of non-touching loops not touching path
     for (let i = 0; i < this.nonTouchingLoopsNotTouchingPath.length; i++) {
       this.gainOfNonTouchingLoopsNotTouchingPath.push([]);
-      for (let j = 0; j < this.nonTouchingLoopsNotTouchingPath[i].length; j++) {
+      for (
+        let j = 0;
+        j < this.nonTouchingLoopsNotTouchingPath[i].length;
+        j++
+      ) {
         let nonTouchingPathsGain = this.calculateGain(
           this.nonTouchingLoopsNotTouchingPath[i][j]
         );
@@ -292,8 +313,8 @@ export default class Graph {
       gainOfLoops: this.gainOfLoops,
       gainOfNonTouchingLoops: this.gainOfNonTouchingLoops,
       gainOfLoopsNotTouchingPath: this.gainOfLoopsNotTouchingPath,
-      gainOfNonTouchingLoopsNotTouchingPath:
-        this.gainOfNonTouchingLoopsNotTouchingPath,
+      gainOfNonTouchingLoopsNotTouchingPath: this
+        .gainOfNonTouchingLoopsNotTouchingPath,
     };
   }
 }
