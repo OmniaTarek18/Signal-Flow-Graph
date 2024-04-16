@@ -144,16 +144,29 @@ export default class Graph {
 
   findNonTouchingLoops(allLoops) {
     let nontouching = [];
-    for (let i = 0; i < allLoops.length; i++) {
-      for (let j = i + 1; j < allLoops.length; j++) {
-        let commonNodes = allLoops[i].filter((node) =>
-          allLoops[j].includes(node)
+    const recursiveFind = (start, currentCombination) => {
+      // base case as the function has found a valid non touching loop combination and there is no need to continue recursing
+      //if the current combination has more than one loop add it to the nontouching array
+      if (currentCombination.length > 1) {
+        nontouching.push(currentCombination);
+      }
+      
+      //iterate through the remaining loops 
+      for (let i = start; i < allLoops.length; i++) {
+        //if the current loop has any nodes in common with the loops in the current combination then they are touching otherwise no
+        const commonNodes = currentCombination.some((comb) =>
+          allLoops[i].some((loop) => comb.includes(loop))
         );
-        if (commonNodes.length === 0) {
-          nontouching.push([allLoops[i], allLoops[j]]);
+        
+        //if there are no common nodes then recursively call the function with the current loop added to the combination
+        if (!commonNodes) {
+          recursiveFind(i + 1, [...currentCombination, allLoops[i]]);
         }
       }
-    }
+    };
+    
+    recursiveFind(0, []);
+    
     return nontouching;
   }
 
